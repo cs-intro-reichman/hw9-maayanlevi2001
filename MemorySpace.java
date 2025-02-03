@@ -1,3 +1,4 @@
+
 /**
  * Represents a managed memory space. The memory space manages a list of allocated 
  * memory blocks, and a list free memory blocks. The methods "malloc" and "free" are 
@@ -57,8 +58,30 @@ public class MemorySpace {
 	 *        the length (in words) of the memory block that has to be allocated
 	 * @return the base address of the allocated block, or -1 if unable to allocate
 	 */
-	public int malloc(int length) {		
-		//// Replace the following statement with your code
+	public int malloc(int length) {
+		Node current = freeList.getFirst();
+		int baseAddress;
+
+		while (current != null) {
+			if (current.block.length >= length) {
+				baseAddress = current.block.baseAddress;
+
+			  MemoryBlock newBlock = new MemoryBlock(baseAddress, length);
+			  allocatedList.add(allocatedList.getSize(), newBlock);
+
+			if (current.block.length == length) {
+			    freeList.remove(current);
+			} else {
+				current.block.baseAddress += length;
+				current.block.length -= length;
+				}
+
+				return baseAddress;
+			}
+
+			current = current.next;
+		}
+
 		return -1;
 	}
 
@@ -67,13 +90,29 @@ public class MemorySpace {
 	 * This implementation deletes the block whose base address equals the given 
 	 * address from the allocatedList, and adds it at the end of the free list. 
 	 * 
-	 * @param baseAddress
+	 * @param address
 	 *            the starting address of the block to freeList
 	 */
 	public void free(int address) {
-		//// Write your code here
+		if (allocatedList.getSize() == 0) {
+			throw new IllegalArgumentException("index must be between 0 and size");
+		}
+
+		Node firstNode =allocatedList.getFirst();
+		
+		while(firstNode !=null) {
+			MemoryBlock allocatedNode = firstNode .block;
+
+			if(allocatedNode.baseAddress == address) {
+				allocatedList.remove(allocatedNode);
+				freeList.addLast(allocatedNode);
+				return;
+			}
+
+			firstNode =firstNode .next;
+		}
 	}
-	
+
 	/**
 	 * A textual representation of the free list and the allocated list of this memory space, 
 	 * for debugging purposes.
@@ -88,6 +127,23 @@ public class MemorySpace {
 	 * In this implementation Malloc does not call defrag.
 	 */
 	public void defrag() {
-		//// Write your code here
+		if (freeList.getSize() <= 1) return;
+
+		freeList.sort();
+		Node current = freeList.getFirst();
+
+		while (current != null && current.next != null) {
+			MemoryBlock currentBlock = current.block;
+			MemoryBlock nextBlock = current.next.block;
+
+			if (currentBlock.baseAddress + currentBlock.length == nextBlock.baseAddress) {
+				currentBlock.length += nextBlock.length;
+				freeList.remove(current.next);
+			}
+
+			else {
+				current = current.next;
+			}
+		}
 	}
 }

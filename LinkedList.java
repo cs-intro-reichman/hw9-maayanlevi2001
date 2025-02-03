@@ -1,3 +1,7 @@
+
+
+
+
 /**
  * Represents a list of Nodes. 
  */
@@ -54,8 +58,11 @@ public class LinkedList {
 			throw new IllegalArgumentException(
 					"index must be between 0 and size");
 		}
-		//// Replace the following statement with your code
-		return null;
+		Node temp = first;
+		for (int i = 0 ; i< index; i++) {
+			temp = temp.next;
+		}
+		return temp;
 	}
 	
 	/**
@@ -78,7 +85,24 @@ public class LinkedList {
 	 *         if index is negative or greater than the list's size
 	 */
 	public void add(int index, MemoryBlock block) {
-		//// Write your code here
+		Node newNode = new Node(block);
+		if (index == 0) 
+		{
+			first = newNode;
+			size++;
+		}
+		if (index == size) 
+		{
+			last.next = newNode;
+			last = newNode;
+			size++;
+		}
+			if(index !=0 && index != size)
+			{
+			newNode.next = (getNode(index)).next;
+			(getNode(index)).next = newNode;
+		}
+
 	}
 
 	/**
@@ -89,7 +113,12 @@ public class LinkedList {
 	 *        the given memory block
 	 */
 	public void addLast(MemoryBlock block) {
-		//// Write your code here
+		Node newNod = new Node(block);
+		last.next = newNod;
+		last = last.next;
+		size++;
+		
+		//add(this.size,block);
 	}
 	
 	/**
@@ -100,7 +129,7 @@ public class LinkedList {
 	 *        the given memory block
 	 */
 	public void addFirst(MemoryBlock block) {
-		//// Write your code here
+		add(0, block);
 	}
 
 	/**
@@ -113,8 +142,9 @@ public class LinkedList {
 	 *         if index is negative or greater than or equal to size
 	 */
 	public MemoryBlock getBlock(int index) {
-		//// Replace the following statement with your code
-		return null;
+    	Node N = getNode(index);
+		
+		return N.block;
 	}	
 
 	/**
@@ -125,41 +155,79 @@ public class LinkedList {
 	 * @return the index of the block, or -1 if the block is not in this list
 	 */
 	public int indexOf(MemoryBlock block) {
-		//// Replace the following statement with your code
+		Node temp = first;
+		int count=0;
+		while (temp.next != null) {
+			if (temp.block == block) {
+				return count;
+			}
+			count++;
+			temp = temp.next;
+
+		}
 		return -1;
 	}
-
-	/**
-	 * Removes the given node from this list.	
-	 * 
+/**
+	 * Removes the given node from this list.
+	 *
 	 * @param node
 	 *        the node that will be removed from this list
 	 */
 	public void remove(Node node) {
-		//// Write your code here
+		if (first == node) {
+			first = first.next;
+			if (first == null) last = first;
+
+			size --;
+		}
+
+		for (int i = 1 ; i < size ; i++) {
+			Node currentNode = getNode(i);
+			if(currentNode == node) {
+				Node prevNode = getNode(i - 1);
+				if(currentNode == last) {
+					last = prevNode;
+				}
+
+				prevNode.next = currentNode.next;
+				currentNode.next = null;
+
+				size--;
+				break;
+			}
+		}
 	}
+
 
 	/**
 	 * Removes from this list the node which is located at the given index.
-	 * 
+	 *
 	 * @param index the location of the node that has to be removed.
 	 * @throws IllegalArgumentException
 	 *         if index is negative or greater than or equal to size
 	 */
 	public void remove(int index) {
-		//// Write your code here
+		if (index < 0 || index > size - 0)
+			throw new IllegalArgumentException("index must be between 0 and size");
+
+		remove(getNode(index));
 	}
 
 	/**
 	 * Removes from this list the node pointing to the given memory block.
-	 * 
+	 *
 	 * @param block the memory block that should be removed from the list
 	 * @throws IllegalArgumentException
 	 *         if the given memory block is not in this list
 	 */
 	public void remove(MemoryBlock block) {
-		//// Write your code here
-	}	
+		int indexOfBlock = indexOf(block);
+
+		if (indexOfBlock < 0)
+			throw new IllegalArgumentException("index must be between 0 and size");
+
+		remove(getNode(indexOfBlock));
+	}
 
 	/**
 	 * Returns an iterator over this list, starting with the first element.
@@ -167,12 +235,34 @@ public class LinkedList {
 	public ListIterator iterator(){
 		return new ListIterator(first);
 	}
-	
+
 	/**
 	 * A textual representation of this list, for debugging.
 	 */
 	public String toString() {
-		//// Replace the following statement with your code
-		return "";
+		String s = "";
+		Node current = first;
+
+		while (current != null) {
+			s = s + current.block + " ";
+			current = current.next;
+		}
+
+		return s;
+	}
+
+	public void sort (){
+		for (int i = 0; i < size - 1; i++) {
+			for (int j = 0; j < size - i - 1; j++) {
+				Node current = getNode(j);
+				Node next = current.next;
+
+				if (current.block.baseAddress > next.block.baseAddress){
+					MemoryBlock temp = current.block;
+					current.block = next.block;
+					next.block = temp;
+				}
+			}
+		}
 	}
 }
