@@ -1,29 +1,25 @@
-
-
-
-
 /**
- * Represents a list of Nodes. 
+ * Represents a list of Nodes.
  */
 public class LinkedList {
-	
+
 	private Node first; // pointer to the first element of this list
 	private Node last;  // pointer to the last element of this list
 	private int size;   // number of elements in this list
-	
+
 	/**
 	 * Constructs a new list.
-	 */ 
+	 */
 	public LinkedList () {
 		first = null;
 		last = first;
 		size = 0;
 	}
-	
+
 	/**
 	 * Gets the first node of the list
 	 * @return The first node of the list.
-	 */		
+	 */
 	public Node getFirst() {
 		return this.first;
 	}
@@ -31,52 +27,57 @@ public class LinkedList {
 	/**
 	 * Gets the last node of the list
 	 * @return The last node of the list.
-	 */		
+	 */
 	public Node getLast() {
 		return this.last;
 	}
-	
+
 	/**
 	 * Gets the current size of the list
 	 * @return The size of the list.
-	 */		
+	 */
 	public int getSize() {
 		return this.size;
 	}
-	
+
 	/**
-	 * Gets the node located at the given index in this list. 
-	 * 
+	 * Gets the node located at the given index in this list.
+	 *
 	 * @param index
 	 *        the index of the node to retrieve, between 0 and size
 	 * @throws IllegalArgumentException
 	 *         if index is negative or greater than the list's size
 	 * @return the node at the given index
-	 */		
+	 */
 	public Node getNode(int index) {
 		if (index < 0 || index > size) {
-			throw new IllegalArgumentException(
-					"index must be between 0 and size");
+			throw new IllegalArgumentException("index must be between 0 and size");
 		}
-		Node temp = first;
-		for (int i = 0 ; i< index; i++) {
-			temp = temp.next;
+
+		Node currentNode = first;
+
+		while (index > 0) {
+			if (currentNode == null) return  currentNode;
+
+			currentNode = currentNode.next;
+			index--;
 		}
-		return temp;
+
+		return currentNode;
 	}
-	
+
 	/**
-	 * Creates a new Node object that points to the given memory block, 
+	 * Creates a new Node object that points to the given memory block,
 	 * and inserts the node at the given index in this list.
 	 * <p>
 	 * If the given index is 0, the new node becomes the first node in this list.
 	 * <p>
-	 * If the given index equals the list's size, the new node becomes the last 
+	 * If the given index equals the list's size, the new node becomes the last
 	 * node in this list.
      * <p>
-	 * The method implementation is optimized, as follows: if the given 
-	 * index is either 0 or the list's size, the addition time is O(1). 
-	 * 
+	 * The method implementation is optimized, as follows: if the given
+	 * index is either 0 or the list's size, the addition time is O(1).
+	 *
 	 * @param block
 	 *        the memory block to be inserted into the list
 	 * @param index
@@ -85,46 +86,48 @@ public class LinkedList {
 	 *         if index is negative or greater than the list's size
 	 */
 	public void add(int index, MemoryBlock block) {
+		if (index < 0 || index > size)
+			throw new IllegalArgumentException("index must be between 0 and size");
+
 		Node newNode = new Node(block);
-		if (index == 0) 
-		{
+
+		if (index == 0) {
+			newNode.next = first;
 			first = newNode;
-			size++;
-		}
-		if (index == size) 
-		{
-			last.next = newNode;
-			last = newNode;
-			size++;
-		}
-			if(index !=0 && index != size)
-			{
-			newNode.next = (getNode(index)).next;
-			(getNode(index)).next = newNode;
 		}
 
+		if (index == size) {
+			if(last != null)
+			{
+				last.next = newNode;
+			}
+			last = newNode;
+		}
+
+		if (index != 0 && index != size) {
+			Node prevNode = getNode(index - 1);
+			newNode.next = prevNode.next;
+			prevNode.next = newNode;
+		}
+
+		size++;
 	}
 
 	/**
 	 * Creates a new node that points to the given memory block, and adds it
 	 * to the end of this list (the node will become the list's last element).
-	 * 
+	 *
 	 * @param block
 	 *        the given memory block
 	 */
 	public void addLast(MemoryBlock block) {
-		Node newNod = new Node(block);
-		last.next = newNod;
-		last = last.next;
-		size++;
-		
-		//add(this.size,block);
+		add(size, block);
 	}
-	
+
 	/**
-	 * Creates a new node that points to the given memory block, and adds it 
+	 * Creates a new node that points to the given memory block, and adds it
 	 * to the beginning of this list (the node will become the list's first element).
-	 * 
+	 *
 	 * @param block
 	 *        the given memory block
 	 */
@@ -134,7 +137,7 @@ public class LinkedList {
 
 	/**
 	 * Gets the memory block located at the given index in this list.
-	 * 
+	 *
 	 * @param index
 	 *        the index of the retrieved memory block
 	 * @return the memory block at the given index
@@ -142,32 +145,32 @@ public class LinkedList {
 	 *         if index is negative or greater than or equal to size
 	 */
 	public MemoryBlock getBlock(int index) {
-    	Node N = getNode(index);
-		
-		return N.block;
-	}	
+		if (index < 0 || index > size)
+			throw new IllegalArgumentException("index must be between 0 and size");
+
+		if (first == null) throw new IllegalArgumentException("index must be between 0 and size");
+
+		return getNode(index).block;
+	}
 
 	/**
 	 * Gets the index of the node pointing to the given memory block.
-	 * 
+	 *
 	 * @param block
 	 *        the given memory block
 	 * @return the index of the block, or -1 if the block is not in this list
 	 */
 	public int indexOf(MemoryBlock block) {
-		Node temp = first;
-		int count=0;
-		while (temp.next != null) {
-			if (temp.block == block) {
-				return count;
+		for (int i = 0; i < size; i++) {
+			if (getNode(i).block == block) {
+				return i;
 			}
-			count++;
-			temp = temp.next;
-
 		}
+
 		return -1;
 	}
-/**
+
+	/**
 	 * Removes the given node from this list.
 	 *
 	 * @param node
